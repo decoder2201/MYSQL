@@ -1,0 +1,145 @@
+ use agg_ope;
+ 
+ create table employees(
+    id INT,
+    name VARCHAR(20),
+    department VARCHAR(20),
+    salary INT,
+    age INT,
+    join_date DATE
+);
+
+INSERT INTO employees (id, name, department, salary, age, join_date) 
+VALUES (1, 'Alice', 'HR', 55000, 30, '2020-03-15'),
+(2, 'Bob', 'IT', 80000, 28, '2019-07-22'),
+(3, 'Charlie', 'Finance', 75000, 35, '2018-11-03'),
+(4, 'David', 'IT', 90000, 40, '2021-06-12'),
+(5, 'Eve', 'Marketing', 62000, 29, '2020-01-10'),
+(6, 'Frank', 'HR', 58000, 33, '2017-04-08'),
+(7, 'Grace', 'Finance', 70000, 31, '2021-08-14'),
+(8, 'Heidi', 'IT', 87000, 38, '2019-12-25'),
+(9, 'Ivan', 'Marketing', 60000, 27, '2022-02-18'),
+(10, 'Judy', 'Finance', 72000, 45, '2020-05-20'),
+(11, 'Ken', 'IT', 95000, 41, '2023-03-01'),
+(12, 'Laura', 'HR', 60000, 36, '2022-09-11'),
+(13, 'Mallory', 'Finance', 76000, 39, '2016-10-19'),
+(14, 'Niaj', 'Marketing', 64000, 26, '2023-01-07'),
+(15, 'Oscar', 'IT', 92000, 34, '2021-11-30');
+
+select * from employees;
+
+-- Find the number of employees in each department.
+
+select department,count(department) from employees group by department;
+
+-- Calculate the average salary for each department.
+
+select department, avg(salary) from employees group by department;
+
+-- Find the total salary paid to each department.
+
+select department, sum(salary) from employees group by department;
+
+-- Get the minimum and maximum salary in each department.
+
+select department, max(salary) , min(salary) from employees group by department;
+
+-- Count how many employees joined in each year.
+
+select year(join_date), count(name) from employees group by year(join_date) order by year(join_date) desc;
+
+
+-- Find departments with more than 5 employees.
+
+select department, count(name) from employees group by department having count(name) > 5;
+
+-- Show departments where the average salary is greater than 60,000.
+
+select department, avg(salary) from employees group by department having avg(salary) > 60000;
+
+-- Get departments with total salary expenditure less than 300,000.
+
+select department, sum(salary) from employees group by department having sum(salary) < 300000;
+
+-- Find the departments where the maximum salary is above 100,000.
+
+select department, max(salary) from employees group by department having max(salary) > 100000;
+
+-- List departments that have employees older than 40 and count them.
+
+select department, count(age) from employees where age >= 40 group by department;
+
+
+-- List departments and their average salary, sorted by average salary descending.
+
+select department, avg(salary) from employees group by department order by avg(salary) desc;
+
+-- Show the count of employees in each department, ordered alphabetically.
+
+select department, count(name) from employees group by department order by  department ASC;
+
+-- List departments by the number of employees in descending order.
+
+select department, count(name) as n from employees group by department order by n desc;
+
+-- Show departments with average salaries, ordered by name and then salary.
+
+select department, count(name) as c, avg(salary) 
+from employees 
+group by department 
+order by c ASC, avg(salary) ASC;
+
+
+-- Display departments by total salary spent, in ascending order.
+
+select department, sum(salary) as s
+from employees 
+group by department 
+order by  s ASC;
+
+
+-- Find departments having more than 3 employees and average salary above 50,000, ordered by average salary descending.
+
+select department, avg(salary) as a, count(name) as c
+from employees 
+group by department 
+having a > 50000 AND c > 3
+order by  a desc;
+
+-- List departments with total salary greater than 200,000 and less than 500,000, sorted by total salary.
+
+select department, sum(salary) as a
+from employees 
+group by department 
+having a > 200000 AND a < 500000
+order by  a Asc;
+
+-- Get top 3 departments with the highest average salary.
+
+select department, avg(salary) as a
+from employees 
+group by department 
+order by  a desc limit 3;
+
+-- Find departments where the difference between max and min salary is more than 30,000.
+
+select department, max(salary) - min(salary) as d 
+from employees 
+group by department 
+having d > 30000; 
+
+-- Show the year-wise total salary paid (grouped by year from join_date) in descending order.
+
+select year(join_date),  sum(salary) as s 
+from employees 
+group by year(join_date) 
+order by year(join_date) desc;
+
+
+
+
+
+
+
+
+
