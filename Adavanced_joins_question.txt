@@ -1,0 +1,187 @@
+Create database advanced;
+use advanced;
+
+-- Dapartments table
+CREATE TABLE departments (
+    departmentID INT PRIMARY KEY,
+    departmentName VARCHAR(100)
+);
+
+INSERT INTO departments (departmentID, departmentName) VALUES
+(1, 'Engineering'),
+(2, 'HR'),
+(3, 'Finance'),
+(4, 'Marketing');
+
+
+--  Employees Table
+CREATE TABLE employees (
+    employeeID INT PRIMARY KEY,
+    name VARCHAR(100),
+    salary DECIMAL(10,2),
+    gender VARCHAR(10),
+    jobTitle VARCHAR(100),
+    departmentID INT,
+    FOREIGN KEY (departmentID) REFERENCES departments(departmentID)
+);
+
+INSERT INTO employees (employeeID, name, salary, gender, jobTitle, departmentID) VALUES
+(1, 'Alice', 90000, 'Female', 'Software Engineer', 1),
+(2, 'Bob', 80000, 'Male', 'QA Engineer', 1),
+(3, 'Charlie', 120000, 'Male', 'Manager', 1),
+(4, 'Diana', 70000, 'Female', 'HR Specialist', 2),
+(5, 'Ethan', 75000, 'Male', 'HR Manager', 2),
+(6, 'Fiona', 65000, 'Female', 'Accountant', 3),
+(7, 'George', 85000, 'Male', 'Finance Analyst', 3),
+(8, 'Hannah', 50000, 'Female', 'Marketing Executive', 4),
+(9, 'Ian', 60000, 'Male', 'Marketing Manager', 4),
+(10, 'Jack', 40000, 'Male', 'Intern', 1);
+
+-- Products Table
+CREATE TABLE products (
+    productID INT PRIMARY KEY,
+    productName VARCHAR(100),
+    categoryID INT
+);
+
+INSERT INTO products (productID, productName, categoryID) VALUES
+(1, 'Laptop', 1),
+(2, 'Phone', 1),
+(3, 'Desk Chair', 2),
+(4, 'Notebook', 3),
+(5, 'Pen', 3);
+
+-- Categories Table
+CREATE TABLE categories (
+    categoryID INT PRIMARY KEY,
+    categoryName VARCHAR(100)
+);
+
+INSERT INTO categories (categoryID, categoryName) VALUES
+(1, 'Electronics'),
+(2, 'Furniture'),
+(3, 'Stationery');
+
+-- Sales Table
+CREATE TABLE sales (
+    saleID INT PRIMARY KEY,
+    productID INT,
+    quantity INT,
+    amount DECIMAL(10,2),
+    saleDate DATE,
+    FOREIGN KEY (productID) REFERENCES products(productID)
+);
+
+INSERT INTO sales (saleID, productID, quantity, amount, saleDate) VALUES
+(1, 1, 5, 5000, '2024-01-15'),
+(2, 2, 10, 7000, '2024-01-20'),
+(3, 1, 3, 3000, '2024-02-10'),
+(4, 3, 7, 1400, '2024-02-15'),
+(5, 4, 15, 450, '2024-03-05'),
+(6, 5, 25, 250, '2024-03-10'),
+(7, 2, 4, 2800, '2024-04-01'),
+(8, 5, 30, 300, '2024-05-22');
+
+-- Find the department that has the highest average salary .
+
+select d.departmentName, avg(e.salary) as Avg_Sal 
+from departments d
+join employees e 
+ON d.departmentID = e.departmentID
+group by d.departmentName
+order by avg_sal desc limit 1;
+-- order by avg_sal desc limit 3; for 3 highest salary
+
+-- List departments having more than 1 employee and total salaries over 200,000.
+
+select d.departmentName, sum(e.salary) as total_Sal , count(e.name) as count_emp
+from departments d
+join employees e 
+ON d.departmentID = e.departmentID
+group by d.departmentName
+having count_emp > 1 AND total_sal > 200000;
+
+
+-- Show all products that have been sold in total more than 20 units, ordered by quantity.
+
+select p.productName, sum(s.quantity) as Total_quan
+from products p 
+join sales s
+on p.productID = s.productID
+group by p.productName
+having total_quan > 20;
+
+-- Find employees who earn more than the average salary of their respective departments.
+
+SELECT e.name, e.salary, d.departmentName
+FROM employees e
+JOIN departments d 
+ON e.departmentID = d.departmentID
+WHERE e.salary > (
+    SELECT AVG(e2.salary)
+    FROM employees e2
+    WHERE e2.departmentID = e.departmentID
+);
+
+
+-- List the top 3 products that generated the most total revenue.
+
+select p.productName, sum(s.quantity * s.amount) as total_revenue
+from products p
+join sales s
+on p.productID = s.ProductID
+group by p.productName
+order by total_revenue desc limit 3;
+
+
+-- Show total quantity and revenue generated per month, and sort by highest revenue.
+
+select sum(quantity * amount) AS total_revenue, sum(quantity), month(saleDate) as per_month 
+from sales
+group by per_month 
+order by total_revenue desc;
+
+-- Show total revenue for each product category, ordered by revenue.
+
+select s.quantity * s.amount AS total_revenue, p.productName, c.categoryName
+from sales s
+join products p 
+on s.productID = p.productID
+join categories c 
+on p.categoryID = c.categoryID
+order by total_revenue;
+
+-- Show departments where the difference between max and min salary is more than 40,000.
+
+select d.departmentName, Max(e.salary) - Min(e.salary) AS Diff_sal
+from departments d
+join employees e
+on d.departmentID = e.departmentID
+group by d.departmentName
+having diff_sal > 40000; 
+
+-- Which department has the most employees?
+select d.departmentName, count(e.name) as count_emp
+from departments d
+join employees e
+on d.departmentID = e.departmentID
+group by d.departmentName
+order by count_emp desc
+limit 1;
+
+-- Show the average salary per job title grouped by department, sorted by department and salary.
+
+select d.departmentName, e.jobtitle, avg(e.salary) as avg_sal
+from departments d
+join employees e
+on d.departmentID = e.departmentID
+group by d.departmentName, e.jobtitle 
+order by d.departmentName, avg_sal desc;
+
+
+
+
+
+
+
+
