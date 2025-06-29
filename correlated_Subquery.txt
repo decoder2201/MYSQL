@@ -1,0 +1,44 @@
+-- Correlated Subquery -- Types of Subqueries
+
+-- 1. Find all the movies that have a rating higher than the average rating of movies in the same genre. [Animation]
+
+use movie;
+select * from movies m1 where score > (select avg(score) from movies m2 where m2.genre = m1.genre);
+
+-- 2. Find the favorite food of each customer.
+
+use zomato;
+
+
+-- Usage with select 
+
+use movie;
+
+-- Get the percentage of votes for each movie compared to the total number of votes.
+
+select name, (votes/(select sum(votes) from movies)) * 100 from movies;
+
+-- Display all movie names, genre, score and avg(score) of genre 
+
+
+select name, genre, score, (select avg(score) from movies m2 where m2.genre = m1.genre) from movies m1;
+
+
+-- usage with from
+
+select t2.r_name, t1.avg_rating from (select r_id, avg(restaurant_rating) as avg_rating from orders group by r_id) t1 join restaurants t2  on t1.r_id = t2.r_id; 
+
+
+-- usage with having
+
+select genre, avg(score) from movies group by genre having avg(score) > (select avg(score) from movies);
+
+select avg(score) from movies;
+
+
+
+
+
+
+
+

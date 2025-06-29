@@ -1,0 +1,26 @@
+-- Independent Subquery - Table Subquery(Multi Col Multi Row)
+
+
+-- 1. Find the most profitable movie of each year
+
+select * from movies where (year,gross-budget) IN
+(select year,max(gross-budget) from movies group by year); 
+
+-- 2. Find the highest rated movie of each genre votes cutoff of 25000
+
+select * from movies where (genre, score) IN
+(select genre,max(score) from movies where votes > 25000 group by genre) and votes > 25000; 
+
+
+
+-- 3. Find the highest grossing movies of top 5 actor/director combo in terms of total gross income
+
+With top_duos AS (select star, director, Max(gross) from movies group by star, director order by sum(gross) desc limit 5)
+
+select * from movies where (star, director, gross) IN (select * from top_duos);
+
+
+
+
+
+

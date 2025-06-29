@@ -1,0 +1,26 @@
+Create database Zomato;
+use Zomato;
+
+-- Independent Subquery - Row Subquery(One Col Multi Rows)
+
+
+-- 1. Find all users who never ordered
+
+select name from users where name not in ( 
+select distinct (u.name) from users u join orders o on u.user_ID = o.user_ID);
+
+-- Without Joins
+
+select * from users where user_ID not in(
+select distinct(user_ID) from orders);
+
+-- 2. Find all the movies made by top 3 directors(in terms of total gross income)
+
+use movie;
+select * from movies where director exists (
+select director from movies group by director order by sum(gross) desc limit 3); -- this workbench doesn't support 
+
+-- 3. Find all movies of all those actors whose filmography's avg rating > 8.5(take 25000 votes as cutoff)
+
+select * from movies where (star,score) in (
+select star,avg(score) from movies where votes > 25000 group by star having avg(score) > 8.5 ) AND votes > 25000;

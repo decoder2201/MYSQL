@@ -1,0 +1,152 @@
+create database sub;
+ 
+use sub;
+
+-- create employee table 
+ 
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    department_id INT,
+    salary DECIMAL(10,2),
+    manager_id INT
+);
+
+INSERT INTO employees (employee_id, name, department_id, salary, manager_id) VALUES
+(1, 'John', 10, 60000, NULL),
+(2, 'Alice', 20, 55000, 1),
+(3, 'Bob', 10, 50000, 1),
+(4, 'Carol', 30, 70000, 1),
+(5, 'David', 20, 80000, 1),
+(6, 'Emma', 10, 65000, 1);
+
+
+-- create department table
+
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    manager_id INT
+);
+
+INSERT INTO departments (department_id, department_name, manager_id) VALUES
+(10, 'HR', 1),
+(20, 'IT', 2),
+(30, 'Sales', 4);
+
+-- create products table
+ 
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(50),
+    category VARCHAR(50),
+    price DECIMAL(10,2)
+);
+
+INSERT INTO products (product_id, product_name, category, price) VALUES
+(101, 'Laptop', 'Electronics', 1500),
+(102, 'Phone', 'Electronics', 800),
+(103, 'Desk', 'Furniture', 400),
+(104, 'Chair', 'Furniture', 200),
+(105, 'Monitor', 'Electronics', 300);
+
+-- create customer table
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+INSERT INTO customers (customer_id, name) VALUES
+(1, 'Mike'),
+(2, 'Sarah'),
+(3, 'Tom');
+
+-- orders table
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    product_id INT,
+    order_total DECIMAL(10,2)
+);
+
+INSERT INTO orders (order_id, customer_id, product_id, order_total) VALUES
+(1001, 1, 101, 1500),
+(1002, 2, 102, 800),
+(1003, 1, 103, 400),
+(1004, 3, 105, 300);
+ 
+
+-- Find employees whose salary is higher than the average salary.
+
+select * from employees where salary > (select avg(salary) from employees);
+
+-- Find customers who have placed at least one order.
+
+select name from customers where customer_id in (select customer_id from orders group by customer_id);
+
+-- Find products that have never been ordered.
+
+select product_name from products where product_id not in
+(select distinct product_id from orders);
+
+-- Find employees who work in the same department as 'John'.
+ 
+select name from employees where department_id in 
+(select department_id from employees where name = 'John') limit 2 offset 1; -- AND name != 'John';
+
+
+-- Find the second highest salary of employees.
+
+select max(salary) from employees where salary < 
+(select max(salary) from employees);
+
+-- Find customers who ordered the most expensive product.
+
+select name from customers where customer_id = (
+select customer_id from orders where product_id = (
+select product_id from products group by product_id having max(price) limit 1));
+
+-- Find departments where the average salary is greater than $50,000.
+
+select department_name from departments where department_id IN 
+(select department_id from employees group by department_id having avg(salary) > 50000);
+
+-- Find employees who have the highest salary in their department.
+
+-- Independent
+select name,department_id, salary from employees where (department_id,salary) IN (
+select department_id, max(salary) from employees group by department_id);
+
+-- corelated 
+SELECT name, department_id, salary
+FROM employees e
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM employees
+    WHERE department_id = e.department_id
+);
+
+
+-- Find employees who earn more than the manager of department 10.
+
+select name,salary from employees where salary >(
+select salary AS man_sal from employees where employee_id = (
+select manager_id from departments where department_id = 10));
+
+-- Find products that are more expensive than the average price of products in category 'Electronics'.
+
+select product_name from products where price > (
+select avg(price) from products where category = 'Electronics');
+
+-- Find customers who have placed orders totaling more than the average order amount.
+
+select customer_id,sum(order_total) as totaling from orders group by customer_id having sum(order_total) > (
+select avg(order_total) from orders);
+
+-- Find employees who earn more than the highest paid employee in department 20.
+
+select name,salary from employees where salary > (
+select max(salary) from employees where department_id = 20);
+

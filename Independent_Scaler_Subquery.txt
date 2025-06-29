@@ -1,0 +1,37 @@
+create database movie;
+use Movie;
+
+select * from movies;
+
+-- Independent Subquery - Scaler Subquery
+
+-- Find the movie with highest rating.
+
+select * from movies where score = (select max(score) from movies);
+
+-- Find the movie with highest profit.
+
+select * from movies where (gross - budget) = (select MAX(gross - budget) from movies);
+
+-- OR
+
+select * from movies order by (gross - budget) desc limit 1;
+
+-- Find how many movies have a rating the avg of all the movie ratings (Find the count of above average movies)
+
+select count(*) from movies where score > 
+(select avg(score) from movies);
+
+-- Find the highest rated movie of 2000
+
+select * from movies where year = 2000 AND score = (select Max(score) from movies where year = 2000);
+
+-- Find the highest rated movie among all movies whose number of votes are > the dataset avg votes
+
+select * from movies where score = 
+(select max(score) from movies where votes >
+( select avg(votes) from movies ));
+
+
+
+

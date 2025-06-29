@@ -1,0 +1,23 @@
+use zomato;
+
+create table loyal_users (user_id int, name varchar(20), money int);
+
+-- USE INSERT
+INSERT INTO loyal_users (user_id, name)
+select u.user_id, name from 
+users u join orders o 
+on u.user_ID = o.user_ID
+group by user_id, name;
+
+select * from loyal_users;
+
+-- USE UPDATE
+UPDATE loyal_users 
+set money = ( select sum(amount) * 0.1 
+from orders where orders.user_id = loyal_users.user_id);
+
+
+delete from users 
+where user_id IN (
+select user_id from users where user_id not in
+(select distinct(user_id) from orders));
